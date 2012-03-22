@@ -1,8 +1,4 @@
-*/Debug
-*/Release
-/Debug
-/Release
-/ipch
-*.sdf
 *.suo
-*.opensdf
+*/bin
+*/obj
+*.csproj.user
