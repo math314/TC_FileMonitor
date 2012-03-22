@@ -6,6 +6,7 @@ using System.Xml.XPath;
 using System.Xml;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace TC_FileMonitor
 {
@@ -45,20 +46,36 @@ namespace TC_FileMonitor
             CreateVCProcessIfProcessNonExisted();
 
             //説明の部分を翻訳する
-            TranslateDesctiption(Path.ChangeExtension(e.Name, "txt"));
+            TranslateDesctiption(Path.ChangeExtension(e.Name, "html"));
 
             //説明のtxtファイルを開く
-            OpenDescriptionText(Path.ChangeExtension(e.Name,"txt"));
+            OpenDescriptionText(Path.ChangeExtension(e.Name,"html"));
         }
 
-        private void TranslateDesctiption(string txt)
+        private void TranslateDesctiption(string html)
         {
+            //htmlをロード
+            HtmlAgilityPack.HtmlDocument doc = new HtmlAgilityPack.HtmlDocument();
+            doc.Load(Properties.Settings.Default.Directory + "\\" + html,Encoding.UTF8);
+
+            var ProblemStatementNode = doc.DocumentNode.SelectSingleNode("./html/body/table/tr[2]/td[2]");
+            Translate tl = new Translate();
+            try
+            {
+                ProblemStatementNode.InnerHtml += "<br>" + tl.EN2JA(ProblemStatementNode.InnerText);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            doc.Save(Properties.Settings.Default.Directory + "\\" + html);
         }
 
-        private void OpenDescriptionText(string txt)
+        private void OpenDescriptionText(string html)
         {
-            Process.Start(Properties.Settings.Default.Directory + "\\" + txt);
-            textBoxInfo.AppendText(txt + " : descriptionを表示。\r\n");
+            Process.Start(Properties.Settings.Default.Directory + "\\" + html);
+            textBoxInfo.AppendText(html + " : descriptionを表示。\r\n");
         }
 
         private void buttonSave_Click(object sender, EventArgs e)
